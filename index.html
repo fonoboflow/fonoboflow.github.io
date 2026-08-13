@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>fonobo flow~ | Operations Architect</title>
+<meta name="description" content="Operations architecture. We find where the work gets stuck, and build the system that keeps it moving.">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://fonoboflow.com/">
+<meta property="og:title" content="fonobo flow~ | Operations Architect">
+<meta property="og:description" content="We find where the work gets stuck, and build the system that keeps it moving.">
+<meta property="og:image" content="https://fonoboflow.com/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="fonobo flow~ | Operations Architect">
+<meta name="twitter:description" content="We find where the work gets stuck, and build the system that keeps it moving.">
+<meta name="twitter:image" content="https://fonoboflow.com/assets/og.png">
+
+<!-- Favicon: black rounded tile with a white tilde -->
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%23000'/><text x='50' y='72' font-size='82' fill='%23fff' text-anchor='middle' font-family='Poppins,Arial,sans-serif'>~</text></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ── Design tokens (inlined from styles.css — only what this page uses) ── */
+  :root {
+    --ink: #000000;
+    --paper: #ffffff;
+
+    --gray-800: #222222;   /* footer dividers on black */
+    --gray-600: #5c5c5c;   /* how-we-work body copy */
+    --gray-500: #777777;   /* fine print on black */
+    --gray-450: #8f8f8f;   /* quiet cta / contact label */
+    --gray-300: #b4b4b4;   /* hero tagline grey */
+    --gray-250: #bdbdbd;   /* nav links on black */
+    --gray-200: #d0d0d0;   /* contact values on black */
+    --on-invert-line: rgba(255, 255, 255, .26); /* translucent cta outline on black */
+
+    --font-display: 'Poppins', system-ui, sans-serif;  /* headings, labels, ui */
+    --font-body: 'Inter', system-ui, sans-serif;        /* running copy */
+
+    --maxw: 1080px;
+    --gutter: 28px;
+    --bar-height: 78px;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+
+    --ease: ease;
+    --dur-fast: 0.15s;
+    --dur-base: 0.18s;
+  }
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: calc(var(--bar-height) + 12px); }
+  body {
+    font-family: var(--font-body);
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+  }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: 2px solid currentColor; outline-offset: 4px; border-radius: 2px; }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); }
+  /* ── Fixed top bar — transparent over the hero, fades in as the wordmark lands ── */
+  .scroll-progress {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    z-index: 90;
+    background: transparent;
+    pointer-events: none;
+  }
+  .scroll-progress span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--paper);
+    transform-origin: left center;
+  }
+  .bar {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 60;
+    background: var(--ink);
+    border-bottom: 1px solid transparent;   /* JS reveals this only once the logo has docked */
+    opacity: 0;                /* JS fades this in as the hero scrolls away */
+    transition: opacity var(--dur-base) var(--ease);
+  }
+  .bar-inner { display: flex; align-items: center; justify-content: flex-end; height: var(--bar-height); }
+  .bar-nav { display: flex; gap: 30px; }
+
+  /* Single wordmark: large in the hero, shrinks to banner size on scroll.
+     Anchored by its BOTTOM edge (translate -100%) so the gap to the tagline below
+     stays constant as it shrinks; top + width are driven by JS. Always visible. */
+  .morph-logo {
+    position: fixed;
+    left: 50%;
+    top: 0;
+    z-index: 70;
+    transform: translate(-50%, -100%);
+    color: var(--paper);
+    width: min(440px, 72vw);
+    margin: 0;
+    pointer-events: none;
+    will-change: top, width;
+  }
+  .morph-logo a { display: block; color: inherit; pointer-events: auto; }
+  .morph-logo svg { width: 100%; height: auto; aspect-ratio: 1070 / 524; display: block; }
+  .bar-nav a {
+    position: relative;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--gray-250);
+    transition: color var(--dur-fast) var(--ease);
+  }
+  .bar-nav a::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: -7px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform var(--dur-base) var(--ease);
+  }
+  .bar-nav a:hover { color: var(--paper); }
+  .bar-nav a.active { color: var(--paper); }
+  .bar-nav a.active::after { transform: scaleX(1); }
+
+  /* ── Hero — full black, ~92vh, centered ── */
+  .hero {
+    position: relative;
+    background: var(--ink);
+    color: var(--paper);
+    min-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px var(--gutter);
+  }
+  /* Reserves the area the big hero wordmark occupies at scroll 0; the fixed
+     .morph-logo is measured against this so it sits exactly over it. */
+  .hero-logo-space { width: min(440px, 72vw); aspect-ratio: 1070 / 524; }
+  .hero .eyebrow {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--gray-450);
+    margin-top: 30px;
+  }
+  .hero .eyebrow + .def { margin-top: 16px; }
+  .hero .def {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-style: italic;
+    font-size: clamp(19px, 2.6vw, 29px);
+    color: var(--gray-300);
+    letter-spacing: -0.01em;
+    max-width: 30ch;
+    margin: 30px auto 0;
+    line-height: 1.4;
+  }
+  .hero .def b { color: var(--paper); font-weight: 700; font-style: normal; }
+  .hero .def .swap-real { color: var(--paper); font-weight: 700; font-style: normal; }
+  .hero .cta { margin-top: 38px; display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: center; }
+  .hero .cta-link {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--paper);
+    border: 1px solid var(--on-invert-line);
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    transition: border-color var(--dur-base) var(--ease);
+  }
+  .hero .cta-link:hover { border-color: var(--paper); }
+
+  /* scroll-down chevron pinned to the bottom of the hero */
+  .hero-scroll {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--paper);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 8px;
+    line-height: 0;
+    transition: opacity var(--dur-fast) var(--ease);
+    animation: hero-bob 1.8s ease-in-out infinite;
+  }
+  .hero-scroll:hover { opacity: 0.7; }
+  .hero-scroll svg { width: 22px; height: auto; display: block; }
+  @keyframes hero-bob {
+    0% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+    100% { transform: translateX(-50%) translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-scroll { animation: none; }
+  }
+
+  /* ── Why me — white ── */
+  .about { padding: 118px 0; }
+  .about-grid { display: grid; grid-template-columns: 330px 1fr; gap: 58px; align-items: center; }
+  .about-photo { position: relative; background: radial-gradient(120% 120% at 50% 18%, #19222b 0%, #0c1116 70%); border-radius: var(--radius-md); overflow: hidden; aspect-ratio: 4 / 5; box-shadow: 0 18px 50px -22px rgba(8,12,18,0.55); }
+  .about-photo picture { display: block; width: 100%; height: 100%; }
+  .about-photo img { width: 100%; height: 100%; object-fit: cover; display: block; filter: contrast(1.04) saturate(0.78) brightness(1.02); }
+  /* edge vignette so the portrait's dark background melts into the panel instead of a hard crop */
+  .about-photo::after { content: ""; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 46px 14px rgba(10,14,19,0.7); border-radius: inherit; z-index: 1; }
+  /* name/role signature, baked over a bottom gradient (from treatment B) */
+  .about-cap { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 46px 20px 18px; background: linear-gradient(to top, rgba(6,9,13,0.86), rgba(6,9,13,0.4) 45%, transparent); pointer-events: none; }
+  .about-cap .nm { display: block; font-family: var(--font-display); font-weight: 600; font-size: 16px; letter-spacing: -0.01em; color: var(--paper); }
+  .about-cap .rl { display: block; margin-top: 3px; font-family: var(--font-display); font-weight: 500; font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.62); }
+  .about-lead {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(26px, 3.4vw, 42px);
+    line-height: 1.18;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+  }
+  .about-text {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(17px, 1.7vw, 21px);
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    color: var(--gray-450);
+    margin-top: 26px;
+    max-width: 42ch;
+  }
+  .about-text .em { color: var(--ink); }
+  .about-close {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(19px, 2.1vw, 27px);
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-top: 26px;
+  }
+  /* ── How we work — four editorial columns; white ── */
+  .how { padding: 118px 0; background: var(--paper); }
+  .how-eyebrow {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.24em;
+    text-transform: lowercase;
+    color: #000;
+    margin-bottom: 48px;
+  }
+  /* expanded list — all four steps stacked; pure CSS, scroll through, no JS/animation */
+  .how-list { display: flex; flex-direction: column; }
+  .how-item {
+    display: grid;
+    grid-template-columns: 156px 124px minmax(0, 1fr);
+    gap: clamp(22px, 3vw, 46px);
+    align-items: start;
+    padding: clamp(34px, 4.5vw, 50px) 0;
+    border-top: 1px solid #e6e6e6;
+  }
+  .how-item:first-child { border-top: 2px solid #000; }
+  .how-num {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--gray-450);
+  }
+  .how-verb {
+    display: block;
+    margin-top: 6px;
+    white-space: nowrap;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(22px, 2.3vw, 30px);
+    letter-spacing: -0.025em;
+    color: #000;
+  }
+  .how-sketch { color: #000; }
+  .how-sketch svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .how-body {
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.7;
+    color: #2b2b2b;
+    max-width: 56ch;
+  }
+  .how-body b { font-weight: 700; color: #000; }
+  .how-body + .how-body { margin-top: 14px; }
+
+  /* ── Footer / contact — black ── */
+  footer { background: var(--ink); color: var(--paper); padding: 80px 0 44px; text-align: center; }
+  footer .foot-line {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(22px, 3vw, 34px);
+    letter-spacing: -0.02em;
+    color: var(--paper);
+    max-width: 22ch;
+    margin: 0 auto;
+  }
+  /* hero tagline: the swapping "losing …" word (time / money / focus) */
+  .swap-word {
+    display: inline-block;
+    position: relative;
+    text-align: center;
+  }
+  /* ghost holds the slot at the widest word's width so "losing" and "?" never move */
+  .swap-ghost { visibility: hidden; }
+  .swap-real {
+    position: absolute;
+    left: 0; right: 0;
+    text-align: center;
+    transition: opacity 0.28s var(--ease);
+  }
+  /* keep "losing [word]?" together so the swapping word never reflows the line */
+  .foot-last { white-space: nowrap; }
+  /* contact block — labelled columns, brand-safe monochrome, hairline dividers */
+  .foot-contacts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 620px;
+    margin: 36px auto 52px;
+  }
+  .foot-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 6px 24px;
+    text-align: left;
+    border-left: 1px solid var(--gray-800);
+  }
+  .foot-contact:first-child { border-left: none; }
+  .foot-contact .lbl {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+  }
+  .foot-contact .val {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 16px;
+    letter-spacing: -0.01em;
+    color: var(--gray-200);
+    transition: color var(--dur-base) var(--ease);
+  }
+  .foot-contact:hover .val { color: var(--paper); }
+  .foot-bottom { color: var(--gray-500); font-size: 13px; border-top: 1px solid var(--gray-800); padding-top: 24px; max-width: var(--maxw); margin: 0 auto; }
+
+  /* ── Responsive (≤820px) ── */
+  @media (max-width: 820px) {
+    .about { padding: 64px 0; }
+    .about-grid { grid-template-columns: 1fr; gap: 28px; }
+    .about-photo { max-width: 230px; }
+    .bar-inner { height: 64px; }
+    .bar-nav { gap: 15px; }
+    .bar-nav a { font-size: 13px; }
+    .how { padding: 64px 0; }
+    .how-item { grid-template-columns: 1fr; gap: 16px; padding: 30px 0; }
+    .how-label { display: flex; align-items: baseline; gap: 14px; }
+    .how-num { margin-top: 0; }
+    .how-verb { margin-top: 0; }
+    .how-sketch { width: 140px; }
+    .foot-contacts { grid-template-columns: 1fr; max-width: 280px; gap: 4px; }
+    .foot-contact { border-left: none; border-top: 1px solid var(--gray-800); padding: 16px 0; align-items: center; text-align: center; }
+    .foot-contact:first-child { border-top: none; }
+  }
+
+  /* Respect reduced-motion: settle the tilde, drop smooth scrolling */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    #ff-logo animateTransform { display: none; }
+  }
+</style>
+</head>
+<body id="top">
+
+<!--
+  ─────────────────────────────────────────────────────────────────────────
+  LOCALIZATION — English now; Polish is the primary market and ships next.
+  All visible copy lives in the page body below, one clearly-labelled block
+  per section. To produce the PL version, swap the text in these blocks only
+  — nothing here is baked into CSS.
+  ─────────────────────────────────────────────────────────────────────────
+-->
+
+<!-- Wordmark symbol — the tilde "wag" is baked in here, so every <use> instance animates. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="ff-logo" viewBox="28 -6 1070 524">
+    <path fill="currentColor" d="M103.40 230L64.10 230L64.10 101.90L35.30 101.90L35.30 66.80L64.10 66.80L64.10 61.40Q64.10 33.50 80.90 18.20Q97.70 2.90 125.90 2.90L125.90 2.90Q129.50 2.90 133.85 3.35Q138.20 3.80 141.20 4.40L141.20 4.40L141.20 38.30Q135.80 37.40 131.00 37.40L131.00 37.40Q117.80 37.40 110.60 43.25Q103.40 49.10 103.40 61.40L103.40 61.40L103.40 66.80L139.70 66.80L139.70 101.90L103.40 101.90L103.40 230ZM243.80 233.60L243.80 233.60Q219.80 233.60 200.15 222.50Q180.50 211.40 168.95 192.20Q157.40 173 157.40 148.40L157.40 148.40Q157.40 123.80 168.95 104.60Q180.50 85.40 200.00 74.30Q219.50 63.20 243.80 63.20L243.80 63.20Q267.50 63.20 287.00 74.30Q306.50 85.40 318.20 104.60Q329.90 123.80 329.90 148.40L329.90 148.40Q329.90 173 318.20 192.35Q306.50 211.70 287.00 222.65Q267.50 233.60 243.80 233.60ZM243.80 197.60L243.80 197.60Q256.70 197.60 266.90 191.30Q277.10 185 282.95 173.90Q288.80 162.80 288.80 148.40L288.80 148.40Q288.80 134.30 282.95 123.20Q277.10 112.10 266.90 105.65Q256.70 99.20 243.80 99.20L243.80 99.20Q230.30 99.20 220.10 105.65Q209.90 112.10 204.05 123.20Q198.20 134.30 198.20 148.40L198.20 148.40Q198.20 162.80 204.05 173.90Q209.90 185 220.10 191.30Q230.30 197.60 243.80 197.60ZM395.90 230L356.60 230L356.60 66.80L393.50 66.80L393.50 86.90Q400.10 75.20 412.10 69.20Q424.10 63.20 439.70 63.20L439.70 63.20Q457.70 63.20 471.50 71.15Q485.30 79.10 493.25 92.90Q501.20 106.70 501.20 125L501.20 125L501.20 230L461.90 230L461.90 134.30Q461.90 118.10 452.75 108.65Q443.60 99.20 428.90 99.20L428.90 99.20Q414.20 99.20 405.05 108.80Q395.90 118.40 395.90 134.30L395.90 134.30L395.90 230ZM611.30 233.60L611.30 233.60Q587.30 233.60 567.65 222.50Q548 211.40 536.45 192.20Q524.90 173 524.90 148.40L524.90 148.40Q524.90 123.80 536.45 104.60Q548 85.40 567.50 74.30Q587 63.20 611.30 63.20L611.30 63.20Q635 63.20 654.50 74.30Q674 85.40 685.70 104.60Q697.40 123.80 697.40 148.40L697.40 148.40Q697.40 173 685.70 192.35Q674 211.70 654.50 222.65Q635 233.60 611.30 233.60ZM611.30 197.60L611.30 197.60Q624.20 197.60 634.40 191.30Q644.60 185 650.45 173.90Q656.30 162.80 656.30 148.40L656.30 148.40Q656.30 134.30 650.45 123.20Q644.60 112.10 634.40 105.65Q624.20 99.20 611.30 99.20L611.30 99.20Q597.80 99.20 587.60 105.65Q577.40 112.10 571.55 123.20Q565.70 134.30 565.70 148.40L565.70 148.40Q565.70 162.80 571.55 173.90Q577.40 185 587.60 191.30Q597.80 197.60 611.30 197.60ZM813.20 233.60L813.20 233.60Q797.30 233.60 783.65 228.05Q770.00 222.50 761.00 211.70L761.00 211.70L761.00 230L724.10 230L724.10 2.90L763.40 2.90L763.40 83.30Q772.10 73.70 784.85 68.45Q797.60 63.20 813.50 63.20L813.50 63.20Q836.60 63.20 855.20 74.60Q873.80 86 884.75 105.20Q895.70 124.40 895.70 148.40L895.70 148.40Q895.70 172.40 884.90 191.75Q874.10 211.10 855.50 222.35Q836.90 233.60 813.20 233.60ZM808.70 197.60L808.70 197.60Q822.20 197.60 832.55 191.30Q842.90 185 848.90 173.90Q854.90 162.80 854.90 148.40L854.90 148.40Q854.90 134.30 848.90 123.20Q842.90 112.10 832.55 105.65Q822.20 99.20 808.70 99.20L808.70 99.20Q795.50 99.20 785.30 105.65Q775.10 112.10 769.25 123.20Q763.40 134.30 763.40 148.40L763.40 148.40Q763.40 162.80 769.25 173.90Q775.10 185 785.30 191.30Q795.50 197.60 808.70 197.60ZM1002.50 233.60L1002.50 233.60Q978.50 233.60 958.85 222.50Q939.20 211.40 927.65 192.20Q916.10 173 916.10 148.40L916.10 148.40Q916.10 123.80 927.65 104.60Q939.20 85.40 958.70 74.30Q978.20 63.20 1002.50 63.20L1002.50 63.20Q1026.20 63.20 1045.70 74.30Q1065.20 85.40 1076.90 104.60Q1088.60 123.80 1088.60 148.40L1088.60 148.40Q1088.60 173 1076.90 192.35Q1065.20 211.70 1045.70 222.65Q1026.20 233.60 1002.50 233.60ZM1002.50 197.60L1002.50 197.60Q1015.40 197.60 1025.60 191.30Q1035.80 185 1041.65 173.90Q1047.50 162.80 1047.50 148.40L1047.50 148.40Q1047.50 134.30 1041.65 123.20Q1035.80 112.10 1025.60 105.65Q1015.40 99.20 1002.50 99.20L1002.50 99.20Q989.00 99.20 978.80 105.65Q968.60 112.10 962.75 123.20Q956.90 134.30 956.90 148.40L956.90 148.40Q956.90 162.80 962.75 173.90Q968.60 185 978.80 191.30Q989.00 197.60 1002.50 197.60Z"/>
+    <path fill="currentColor" transform="translate(-92.2 0)" d="M438.60 500L399.30 500L399.30 371.90L370.50 371.90L370.50 336.80L399.30 336.80L399.30 331.40Q399.30 303.50 416.10 288.20Q432.90 272.90 461.10 272.90L461.10 272.90Q464.70 272.90 469.05 273.35Q473.40 273.80 476.40 274.40L476.40 274.40L476.40 308.30Q471 307.40 466.20 307.40L466.20 307.40Q453 307.40 445.80 313.25Q438.60 319.10 438.60 331.40L438.60 331.40L438.60 336.80L474.90 336.80L474.90 371.90L438.60 371.90L438.60 500ZM538.50 500L499.20 500L499.20 272.90L538.50 272.90L538.50 500ZM651.60 503.60L651.60 503.60Q627.60 503.60 607.95 492.50Q588.30 481.40 576.75 462.20Q565.20 443 565.20 418.40L565.20 418.40Q565.20 393.80 576.75 374.60Q588.30 355.40 607.80 344.30Q627.30 333.20 651.60 333.20L651.60 333.20Q675.30 333.20 694.80 344.30Q714.30 355.40 726 374.60Q737.70 393.80 737.70 418.40L737.70 418.40Q737.70 443 726 462.35Q714.30 481.70 694.80 492.65Q675.30 503.60 651.60 503.60ZM651.60 467.60L651.60 467.60Q664.50 467.60 674.70 461.30Q684.90 455 690.75 443.90Q696.60 432.80 696.60 418.40L696.60 418.40Q696.60 404.30 690.75 393.20Q684.90 382.10 674.70 375.65Q664.50 369.20 651.60 369.20L651.60 369.20Q638.10 369.20 627.90 375.65Q617.70 382.10 611.85 393.20Q606 404.30 606 418.40L606 418.40Q606 432.80 611.85 443.90Q617.70 455 627.90 461.30Q638.10 467.60 651.60 467.60ZM840.30 500L805.50 500L749.40 336.80L790.80 336.80L824.70 439.70L861.30 336.80L896.10 336.80L932.10 439.70L966.30 336.80L1007.70 336.80L951.60 500L916.50 500L878.70 389.90L840.30 500Z"/>
+    <g transform="translate(939.8 446.3)"><path id="ffTilde" fill="currentColor" d="M44.20 -109.50L55.60 -109.10L64.00 -107.10L74.00 -102.30L87.60 -93.30L92.40 -91.10L97.00 -90.10L103.40 -90.30L109.40 -93.10L111.80 -95.50L114.40 -100.10L116.60 -108.30L148.20 -108.30L147.40 -99.70L144.80 -87.90L140.20 -76.90L135.40 -69.90L128.80 -63.90L121.20 -59.90L111.40 -57.50L99.60 -57.30L90.60 -58.90L84.00 -61.50L60.60 -75.50L55.00 -76.90L49.60 -76.90L43.80 -74.90L40.00 -71.70L37.00 -66.90L34.80 -58.70L3.00 -58.70L3.80 -67.70L6.00 -77.70L10.20 -88.10L15.00 -95.30L21.40 -101.50L28.80 -105.90L36.80 -108.50L44.00 -109.30Z"></path></g>
+  </symbol>
+</svg>
+
+<!-- FIXED TOP BAR -->
+<div class="scroll-progress" aria-hidden="true"><span id="scrollProgressFill"></span></div>
+<header class="bar" id="bar">
+  <div class="wrap bar-inner">
+    <nav class="bar-nav" aria-label="Primary">
+      <a href="#about">about</a>
+      <a href="#how">how we work</a>
+      <a href="#contact">let's talk</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Always-visible wordmark: full size in the hero, shrinks in place to banner size on scroll -->
+<h1 class="morph-logo" id="morphLogo">
+  <a href="#top" aria-label="fonobo flow~ — back to top"><svg><use href="#ff-logo"/></svg></a>
+</h1>
+
+<main>
+  <!-- HERO -->
+  <section class="hero" aria-label="Introduction">
+    <div class="hero-logo-space" aria-hidden="true"></div>
+    <!-- COPY: hero category tag -->
+    <p class="eyebrow">Operations architecture</p>
+    <!-- COPY: hero tagline — "losing [time/money/control]?" crossfades via the swapWord script.
+         The space before "?" is deliberate: it keeps the mark still while the word changes. -->
+    <p class="def">Where is your company <span class="foot-last">losing <span class="swap-word"><span class="swap-ghost" aria-hidden="true">control</span><span class="swap-real" id="swapWord">time</span></span> ?</span></p>
+    <div class="cta">
+      <a class="cta-link" href="#contact">let's talk</a>
+    </div>
+    <button type="button" class="hero-scroll" id="heroScroll" aria-label="Scroll to how we work">
+      <svg viewBox="0 0 24 14" fill="none" aria-hidden="true"><path d="M2 2l10 10L22 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </section>
+
+  <!-- WHY ME -->
+  <section class="about" id="about" aria-label="Why me">
+    <div class="wrap">
+      <div class="about-grid">
+        <div class="about-photo">
+          <picture>
+            <source srcset="assets/sebastian-bujak-portrait.webp" type="image/webp">
+            <img src="assets/sebastian-bujak-portrait.jpg" alt="Sebastian Bujak, Operations Architect, portrait" width="800" height="1067" loading="lazy" decoding="async">
+          </picture>
+          <div class="about-cap"><span class="nm">Sebastian Bujak</span><span class="rl">Founder, Operations Architect</span></div>
+        </div>
+        <div class="about-body">
+          <!-- COPY: why me -->
+          <p class="about-lead">I've run my own companies for most of my working life, all of it in music and live events.</p>
+          <p class="about-text">I built the digital distribution and data operations for a large music catalogue. Operational chaos is something I know from the inside: I created a fair amount of it myself. That is why <span class="em">fonobo flow</span> exists.</p>
+          <p class="about-close">We find where the work gets stuck, and build the system that keeps it moving.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW WE WORK — four editorial columns: find · build · prove · hand over -->
+  <section class="how" id="how" aria-label="How we work">
+    <div class="wrap">
+      <p class="how-eyebrow">how we work</p>
+      <div class="how-list">
+        <!-- COPY: how-we-work steps — expand each <p class="how-body"> freely, use <b> for emphasis -->
+        <div class="how-item">
+          <div class="how-label"><span class="how-num">01</span><span class="how-verb">find</span></div>
+          <div class="how-sketch"><svg viewBox="0 0 140 96" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M40 18 L64 30" stroke-dasharray="1.5 4" opacity=".45"/>
+              <path d="M54 50 L82 20" stroke-dasharray="1.5 4" opacity=".45"/>
+              <path d="M30 44 L54 50" stroke-dasharray="1.5 4" opacity=".45"/>
+              <path d="M64 30 L92 40" stroke-dasharray="1.5 4" opacity=".45"/>
+              <circle cx="18" cy="22" r="3" fill="currentColor" stroke="none"/>
+              <circle cx="40" cy="18" r="3" fill="currentColor" stroke="none"/>
+              <circle cx="64" cy="30" r="3" fill="currentColor" stroke="none"/>
+              <circle cx="30" cy="44" r="3" fill="currentColor" stroke="none"/>
+              <circle cx="54" cy="50" r="3" fill="currentColor" stroke="none"/>
+              <circle cx="82" cy="20" r="3" fill="currentColor" stroke="none"/>
+              <circle cx="92" cy="40" r="3" fill="currentColor" stroke="none"/>
+              <circle cx="112" cy="30" r="3" fill="currentColor" stroke="none"/>
+              <circle cx="74" cy="64" r="3" fill="currentColor" stroke="none"/>
+              <path d="M54 54 L54 82"/>
+              <circle cx="54" cy="86" r="2.2" fill="currentColor" stroke="none"/>
+              <path d="M92 44 L92 66"/>
+              <circle cx="92" cy="70" r="2.2" fill="currentColor" stroke="none"/>
+            </svg></div>
+          <div class="how-detail">
+            <p class="how-body"><b>Find where it lives.</b> We map how your operations really run, across the spreadsheets, inboxes, group chats and half-finished apps. Then we find <b>where the data leaks</b>: the manual re-typing, the copy-paste, the steps only one person knows.</p>
+          </div>
+        </div>
+        <div class="how-item">
+          <div class="how-label"><span class="how-num">02</span><span class="how-verb">build</span></div>
+          <div class="how-sketch"><svg viewBox="0 0 140 96" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="24" cy="48" r="9"/>
+              <circle cx="70" cy="48" r="9"/>
+              <circle cx="116" cy="48" r="9"/>
+              <path d="M35 48 L57 48"/>
+              <path d="M52 43 L57 48 L52 53"/>
+              <path d="M81 48 L103 48"/>
+              <path d="M98 43 L103 48 L98 53"/>
+            </svg></div>
+          <div class="how-detail">
+            <p class="how-body"><b>Build one tool per job.</b> Each job gets one tool, wired into a single workflow, built from <b>proven parts</b> rather than a rebuild of what already works. The tool fits your process, not the other way around. Everything gets a fallback, so nothing rests on a single point of failure.</p>
+          </div>
+        </div>
+        <div class="how-item">
+          <div class="how-label"><span class="how-num">03</span><span class="how-verb">prove</span></div>
+          <div class="how-sketch"><svg viewBox="0 0 140 96" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M16 80 L124 80" opacity=".5"/>
+              <path d="M22 72 L46 58 L70 64 L94 40 L116 26"/>
+              <circle cx="22" cy="72" r="2.6" fill="currentColor" stroke="none"/>
+              <circle cx="46" cy="58" r="2.6" fill="currentColor" stroke="none"/>
+              <circle cx="70" cy="64" r="2.6" fill="currentColor" stroke="none"/>
+              <circle cx="94" cy="40" r="2.6" fill="currentColor" stroke="none"/>
+              <circle cx="116" cy="26" r="2.6" fill="currentColor" stroke="none"/>
+              <path d="M100 16 L106 22 L118 8"/>
+            </svg></div>
+          <div class="how-detail">
+            <p class="how-body"><b>Prove it on your numbers.</b> We run it against <b>your real data</b>, not a demo, so you see it working before anyone depends on it. If a piece doesn't earn its place, it doesn't ship.</p>
+          </div>
+        </div>
+        <div class="how-item">
+          <div class="how-label"><span class="how-num">04</span><span class="how-verb">hand over</span></div>
+          <div class="how-sketch"><svg viewBox="0 0 140 96" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M24 30 L42 42 L26 60 L24 30"/>
+              <path d="M42 42 L22 46"/>
+              <circle cx="24" cy="30" r="3" fill="currentColor" stroke="none"/>
+              <circle cx="42" cy="42" r="3" fill="currentColor" stroke="none"/>
+              <circle cx="26" cy="60" r="3" fill="currentColor" stroke="none"/>
+              <path d="M72 14 L72 82" stroke-dasharray="2 5" opacity=".4"/>
+              <path d="M50 48 L98 48"/>
+              <path d="M92 42 L98 48 L92 54"/>
+              <circle cx="116" cy="48" r="10"/>
+            </svg></div>
+          <div class="how-detail">
+            <p class="how-body"><b>Hand it over, and leave.</b> The whole system becomes <b>yours to run</b>: documented, owned by your team, no lock-in.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER / CONTACT -->
+<footer id="contact">
+  <!-- COPY: closing line -->
+  <p class="foot-line">Tell us what's stuck.</p>
+  <!-- CONTACT LINKS — brand-safe monochrome text (no LinkedIn bug, so no colour rule applies).
+       Replace the placeholders: LinkedIn profile URL, email. -->
+  <nav class="foot-contacts" aria-label="Contact">
+    <a class="foot-contact" href="https://www.linkedin.com/in/sebastian-bujak/" target="_blank" rel="noopener">
+      <span class="lbl">linkedin</span>
+      <span class="val">/sebastian-bujak</span>
+    </a>
+    <a class="foot-contact" href="https://www.linkedin.com/company/fonobo-flow" target="_blank" rel="noopener">
+      <span class="lbl">linkedin</span>
+      <span class="val">/fonobo-flow</span>
+    </a>
+    <a class="foot-contact" href="mailto:hello@fonoboflow.com">
+      <span class="lbl">email</span>
+      <span class="val">hello@fonoboflow.com</span>
+    </a>
+  </nav>
+  <div class="foot-bottom">© 2026 fonoboflow.com</div>
+</footer>
+
+<script>  var bar = document.getElementById('bar');
+  var morph = document.getElementById('morphLogo');
+  var space = document.querySelector('.hero-logo-space');
+  var progressFill = document.getElementById('scrollProgressFill');
+
+  // ── Top-bar scroll spy: underline the nav item for the section in view ──
+  var linkAbout = document.querySelector('.bar-nav a[href="#about"]');
+  var linkHow = document.querySelector('.bar-nav a[href="#how"]');
+  var linkContact = document.querySelector('.bar-nav a[href="#contact"]');
+  function activeNav() {
+    var about = document.getElementById('about'), how = document.getElementById('how'), contact = document.getElementById('contact');
+    var y = window.scrollY + (bar.offsetHeight || 78) + 40;
+    // The footer is shorter than the viewport, so its top never crosses the trigger
+    // line — treat reaching the bottom of the page as "contact in view".
+    var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+    var sec = atBottom ? 'c'
+            : (contact && y >= contact.offsetTop) ? 'c'
+            : (how && y >= how.offsetTop) ? 'h'
+            : (about && y >= about.offsetTop) ? 'a' : '';
+    if (linkAbout) linkAbout.classList.toggle('active', sec === 'a');
+    if (linkHow) linkHow.classList.toggle('active', sec === 'h');
+    if (linkContact) linkContact.classList.toggle('active', sec === 'c');
+  }
+
+  var bannerW, heroW, heroBottomY, barBottomY, travel;   // measured from layout
+
+  function measure() {
+    bannerW = window.innerWidth <= 820 ? 86 : 104;        // final banner width
+    heroW = space.offsetWidth;                            // hero wordmark width
+    var ratio = 524 / 1070;                               // wordmark aspect (h/w)
+    barBottomY = bar.offsetHeight / 2 + (bannerW * ratio) / 2;  // bottom edge that centres the logo in the bar
+    var r = space.getBoundingClientRect();
+    heroBottomY = r.top + window.scrollY + r.height;      // logo BOTTOM at scroll 0 (doc space)
+    travel = Math.max(1, heroBottomY - barBottomY);       // bottom-edge journey: hero → bar
+  }
+
+  function frame() {
+    // Bottom edge tracks scroll 1:1 (gap to the tagline stays constant), then pins at the bar.
+    var bottomY = Math.max(barBottomY, heroBottomY - window.scrollY);
+    var p = Math.min(1, Math.max(0, window.scrollY / travel));
+    // Steady, gentle shrink (no abrupt easeOut) — finishes exactly as the logo docks.
+    morph.style.width = (heroW + (bannerW - heroW) * p) + 'px';
+    morph.style.top = bottomY + 'px';
+    // On narrow screens the centred docked logo would collide with the right-aligned
+    // nav, so slide it to the left gutter as it finishes shrinking (last 60% of travel).
+    var vw = window.innerWidth;
+    var dockCX = vw <= 820 ? (28 + bannerW / 2) : vw / 2;
+    var hp = Math.min(1, Math.max(0, (p - 0.4) / 0.6));
+    morph.style.left = (vw / 2 + (dockCX - vw / 2) * hp) + 'px';
+    bar.style.opacity = p;
+    // the bottom hairline appears only once the logo has docked (last 10% of the morph)
+    bar.style.borderBottomColor = 'rgba(28, 28, 28, ' + Math.max(0, (p - 0.9) / 0.1).toFixed(3) + ')';
+    bar.style.pointerEvents = p > 0.6 ? 'auto' : 'none';
+    if (progressFill) {
+      var docH = document.documentElement.scrollHeight - window.innerHeight;
+      var sp = docH > 0 ? window.scrollY / docH : 0;
+      progressFill.style.width = (Math.min(1, Math.max(0, sp)) * 100).toFixed(2) + '%';
+    }
+    activeNav();
+  }
+
+  function onScroll() { window.requestAnimationFrame(frame); }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', function () { measure(); frame(); });
+  measure();
+  frame();
+</script>
+
+<template id="__bundler_thumbnail" data-bg-color="#000000">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#000000"/>
+    <text x="600" y="470" font-family="Poppins, Arial, sans-serif" font-weight="600" font-size="280" fill="#ffffff" text-anchor="middle">~</text>
+  </svg>
+</template>
+
+<script>
+  // Hero chevron → smooth-scroll to the about section.
+  (function () {
+    var hs = document.getElementById('heroScroll');
+    if (hs) hs.addEventListener('click', function () {
+      var about = document.getElementById('about');
+      if (!about) return;
+      var top = about.getBoundingClientRect().top + window.scrollY - 90;
+      window.scrollTo({ top: top, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    });
+  })();
+  // Hero tagline: cycle the "losing …" word time / money / focus with a soft crossfade.
+  (function () {
+    var el = document.getElementById('swapWord');
+    if (!el) return;
+    var words = ['time', 'money', 'control'], i = 0;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setInterval(function () {
+      i = (i + 1) % words.length;
+      if (reduce) { el.textContent = words[i]; return; }
+      el.style.opacity = '0';
+      setTimeout(function () { el.textContent = words[i]; el.style.opacity = '1'; }, 300);
+    }, 1500);
+  })();
+  // The wordmark tilde: a gentle wag every few seconds, plus a lean toward the cursor.
+  (function () {
+    var tilde = document.getElementById('ffTilde');
+    if (!tilde || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var targetLean = 0, lean = 0;
+    window.addEventListener('mousemove', function (e) {
+      targetLean = (e.clientX / window.innerWidth - 0.5) * 2;   // -1 (left) … 1 (right)
+    }, { passive: true });
+    function loop(t) {
+      var ts = t * 0.001;
+      var phase = ts % 6;                                       // wag once every 6s
+      var wag = phase < 1.4 ? Math.sin(phase * 11) * Math.exp(-phase * 2.3) * 15 : 0;
+      lean += (targetLean - lean) * 0.07;                       // ease toward cursor
+      var angle = wag + lean * 11;                              // ±~11° cursor lean
+      tilde.setAttribute('transform', 'rotate(' + angle.toFixed(2) + ' 75 -83)');
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  })();
+</script>
+
+</body>
+</html>
