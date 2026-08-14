@@ -103,11 +103,11 @@ a:hover{color:inherit}
 .how-body b{font-weight:700;color:#000}
 footer{background:var(--ink);color:var(--paper);padding:80px 0 44px;text-align:center}
 footer .foot-line{font-family:var(--font-display);font-weight:600;font-size:clamp(22px,3vw,34px);letter-spacing:-.02em;color:var(--paper);max-width:22ch;margin:0 auto}
-.foot-contacts{display:grid;grid-template-columns:repeat(3,1fr);max-width:620px;margin:36px auto 52px}
-.foot-contact{display:flex;flex-direction:column;gap:8px;padding:6px 24px;text-align:left;border-left:1px solid var(--gray-800)}
+.foot-contacts{display:grid;grid-template-columns:repeat(4,1fr);max-width:880px;padding:0 20px;margin:36px auto 52px}
+.foot-contact{display:flex;flex-direction:column;gap:8px;padding:6px 16px;text-align:left;border-left:1px solid var(--gray-800)}
 .foot-contact:first-child{border-left:none}
 .foot-contact .lbl{font-family:var(--font-display);font-weight:500;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gray-500)}
-.foot-contact .val{font-family:var(--font-display);font-weight:500;font-size:16px;letter-spacing:-.01em;color:var(--gray-200);transition:color var(--dur-base) var(--ease)}
+.foot-contact .val{font-family:var(--font-display);font-weight:500;font-size:15px;white-space:nowrap;letter-spacing:-.01em;color:var(--gray-200);transition:color var(--dur-base) var(--ease)}
 .foot-contact:hover .val{color:var(--paper)}
 .foot-bottom{color:var(--gray-500);font-size:13px;border-top:1px solid var(--gray-800);padding-top:24px;max-width:var(--maxw);margin:0 auto}
 @media (max-width:820px){
@@ -115,9 +115,9 @@ footer .foot-line{font-family:var(--font-display);font-weight:600;font-size:clam
 .about{padding:64px 0}
 .about-grid{grid-template-columns:1fr;gap:28px}
 .about-photo{max-width:230px}
-.bar-inner{padding-left:118px}
-.bar-nav{gap:15px}
-.bar-nav a{font-size:13px}
+.bar-inner{padding-left:118px;height:auto;min-height:var(--bar-height);padding-top:8px;padding-bottom:8px}
+.bar-nav{gap:clamp(10px,3.4vw,15px);flex-wrap:wrap;justify-content:flex-end;row-gap:2px}
+.bar-nav a{font-size:13px;white-space:nowrap}
 .how{padding:64px 0}
 .how-item{grid-template-columns:1fr;gap:16px;padding:30px 0}
 .how-label{display:flex;align-items:baseline;gap:14px}
@@ -207,12 +207,12 @@ footer .foot-line{font-family:var(--font-display);font-weight:600;font-size:clam
 <nav class="foot-contacts" aria-label="Contact">
 <a class="foot-contact" href="https://www.linkedin.com/in/sebastian-bujak/" target="_blank" rel="noopener"><span class="lbl">linkedin</span><span class="val">/sebastian-bujak</span></a>
 <a class="foot-contact" href="https://www.linkedin.com/company/fonobo-flow" target="_blank" rel="noopener"><span class="lbl">linkedin</span><span class="val">/fonobo-flow</span></a>
-<a class="foot-contact" href="mailto:hello@fonoboflow.com"><span class="lbl">email</span><span class="val">hello@fonoboflow.com</span></a>
+<a class="foot-contact" href="mailto:hello@fonoboflow.com"><span class="lbl">email</span><span class="val">hello@fonoboflow.com</span></a><a class="foot-contact" href="tel:+48570092825"><span class="lbl">mobile</span><span class="val">+48&nbsp;570&nbsp;092&nbsp;825</span></a>
 </nav>
 <div class="foot-bottom">© 2026 fonoboflow.com</div>
 </footer>
 
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"ProfessionalService","@id":"https://fonoboflow.com/#business","name":"fonobo flow~","url":"https://fonoboflow.com/","email":"hello@fonoboflow.com","description":"Operations architecture. We find where the work gets stuck, and build the system that keeps it moving.","image":"https://fonoboflow.com/assets/og.png","sameAs":["https://www.linkedin.com/company/fonobo-flow"],"areaServed":{"@type":"Country","name":"Poland"},"founder":{"@id":"https://fonoboflow.com/#sebastian"}},{"@type":"Person","@id":"https://fonoboflow.com/#sebastian","name":"Sebastian Bujak","jobTitle":"Operations Architect","email":"hello@fonoboflow.com","worksFor":{"@id":"https://fonoboflow.com/#business"},"sameAs":["https://www.linkedin.com/in/sebastian-bujak/"]},{"@type":"WebSite","@id":"https://fonoboflow.com/#website","url":"https://fonoboflow.com/","name":"fonobo flow~ | Operations Architect","inLanguage":"en","publisher":{"@id":"https://fonoboflow.com/#business"}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"ProfessionalService","@id":"https://fonoboflow.com/#business","name":"fonobo flow~","url":"https://fonoboflow.com/","email":"hello@fonoboflow.com","telephone":"+48570092825","description":"Operations architecture. We find where the work gets stuck, and build the system that keeps it moving.","image":"https://fonoboflow.com/assets/og.png","sameAs":["https://www.linkedin.com/company/fonobo-flow"],"areaServed":{"@type":"Country","name":"Poland"},"founder":{"@id":"https://fonoboflow.com/#sebastian"}},{"@type":"Person","@id":"https://fonoboflow.com/#sebastian","name":"Sebastian Bujak","jobTitle":"Operations Architect","email":"hello@fonoboflow.com","worksFor":{"@id":"https://fonoboflow.com/#business"},"sameAs":["https://www.linkedin.com/in/sebastian-bujak/"]},{"@type":"WebSite","@id":"https://fonoboflow.com/#website","url":"https://fonoboflow.com/","name":"fonobo flow~ | Operations Architect","inLanguage":"en","publisher":{"@id":"https://fonoboflow.com/#business"}}]}</script>
 
 <script>
 (function(){
