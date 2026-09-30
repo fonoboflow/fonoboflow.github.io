@@ -12,14 +12,14 @@
 <meta property="og:locale" content="en_GB">
 <meta property="og:url" content="https://fonoboflow.com/">
 <meta property="og:title" content="fonobo flow~ | Operations Architect">
-<meta property="og:description" content="We find where the work gets stuck, and build the system that keeps it moving.">
+<meta property="og:description" content="Operations architecture. We find where the work gets stuck, and build the system that keeps it moving.">
 <meta property="og:image" content="https://fonoboflow.com/assets/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="fonobo flow~ wordmark, white on black">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="fonobo flow~ | Operations Architect">
-<meta name="twitter:description" content="We find where the work gets stuck, and build the system that keeps it moving.">
+<meta name="twitter:description" content="Operations architecture. We find where the work gets stuck, and build the system that keeps it moving.">
 <meta name="twitter:image" content="https://fonoboflow.com/assets/og.png">
 <meta name="twitter:image:alt" content="fonobo flow~ wordmark, white on black">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
@@ -57,6 +57,8 @@ a:hover{color:inherit}
 .bar-nav a::after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:center;transition:transform var(--dur-base) var(--ease)}
 .bar-nav a:hover,.bar-nav a.active{color:var(--paper)}
 .bar-nav a.active::after{transform:scaleX(1)}
+.lang-switch{display:flex;align-items:baseline;gap:7px;font-family:var(--font-display);font-weight:500;font-size:14px;color:var(--gray-500)}
+.lang-cur{color:var(--paper)}
 /* Wordmark: one element, big in the hero, scaled down into the bar on scroll.
    Positioned by transform only (compositor), never by top/width. */
 .morph-logo{position:fixed;top:0;left:0;z-index:70;color:var(--paper);margin:0;pointer-events:none;transform:translate(-50%,-100%) translate3d(50vw,52vh,0);will-change:transform}
@@ -123,6 +125,8 @@ footer .foot-line{font-family:var(--font-display);font-weight:600;font-size:clam
 .bar.nav-open .bar-nav{display:flex}
 .bar-nav a{font-size:16px;padding:15px var(--gutter);white-space:nowrap}
 .bar-nav a::after{display:none}
+.lang-switch{padding:15px var(--gutter);font-size:16px}
+.lang-switch a{padding:0}
 .how{padding:64px 0}
 .how-item{grid-template-columns:1fr;gap:16px;padding:30px 0}
 .how-label{display:flex;align-items:baseline;gap:14px}
@@ -157,6 +161,7 @@ body{background:#121212;color:#f0f0f0}
 <a href="#about">about</a>
 <a href="#how">how we work</a>
 <a href="#contact">let's talk</a>
+<span class="lang-switch" role="group" aria-label="Language"><span class="lang-cur" aria-current="true"><span aria-hidden="true">en</span><span class="sr">English</span></span><span class="lang-sep" aria-hidden="true">·</span><a href="pl/" hreflang="pl" lang="pl"><span aria-hidden="true">pl</span><span class="sr">Polski</span></a></span>
 </nav>
 </div>
 </header>
@@ -182,7 +187,7 @@ body{background:#121212;color:#f0f0f0}
 <div class="about-cap"><span class="nm">Sebastian Bujak</span><span class="rl">Founder, Operations Architect</span></div>
 </div>
 <div class="about-body">
-<h2 class="about-lead">I've run my own companies for most of my working life, all of it in music and live events.</h2>
+<h2 class="about-lead">I've run my own companies for most of my working life, all of them in music and live events.</h2>
 <p class="about-text">I built the digital distribution and data operations for a large music catalogue. Operational chaos is something I know from the inside: I created a fair amount of it myself. That is why <span class="em">fonobo flow</span> exists.</p>
 <p class="about-close">We find where the work gets stuck, and build the system that keeps it moving.</p>
 </div>
@@ -202,7 +207,7 @@ body{background:#121212;color:#f0f0f0}
 <div class="how-item">
 <div class="how-label"><span class="how-num">02</span><span class="how-verb">build</span></div>
 <div class="how-sketch"><svg viewBox="0 0 140 96" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="24" cy="48" r="9"/><circle cx="70" cy="48" r="9"/><circle cx="116" cy="48" r="9"/><path d="M35 48 L57 48"/><path d="M52 43 L57 48 L52 53"/><path d="M81 48 L103 48"/><path d="M98 43 L103 48 L98 53"/></svg></div>
-<div class="how-detail"><p class="how-body"><b>Build one tool per job.</b> Each job gets one tool, wired into a single workflow, built from <b>proven parts</b> rather than a rebuild of what already works. The tool fits your process, not the other way around. Everything gets a fallback, so nothing rests on a single point of failure.</p></div>
+<div class="how-detail"><p class="how-body"><b>Build what the job needs.</b> Each job gets the tools it needs, wired into a single workflow, built from <b>proven parts</b> rather than a rebuild of what already works. The tools fit your process, not the other way around. Everything gets a fallback, so nothing rests on a single point of failure.</p></div>
 </div>
 <div class="how-item">
 <div class="how-label"><span class="how-num">03</span><span class="how-verb">prove</span></div>
@@ -224,7 +229,7 @@ body{background:#121212;color:#f0f0f0}
 <nav class="foot-contacts" aria-label="Contact">
 <a class="foot-contact" href="https://www.linkedin.com/in/sebastian-bujak/" target="_blank" rel="noopener"><span class="lbl">linkedin</span><span class="val">/sebastian-bujak</span></a>
 <a class="foot-contact" href="https://www.linkedin.com/company/fonobo-flow" target="_blank" rel="noopener"><span class="lbl">linkedin</span><span class="val">/fonobo-flow</span></a>
-<a class="foot-contact" href="mailto:hello@fonoboflow.com"><span class="lbl">email</span><span class="val">hello@fonoboflow.com</span></a><a class="foot-contact" href="tel:+48570092825"><span class="lbl">mobile</span><span class="val">+48&nbsp;570&nbsp;092&nbsp;825</span></a>
+<a class="foot-contact" href="mailto:hello@fonoboflow.com"><span class="lbl">email</span><span class="val">hello@fonoboflow.com</span></a><a class="foot-contact" href="tel:+48570092825"><span class="lbl">phone</span><span class="val">+48&nbsp;570&nbsp;092&nbsp;825</span></a>
 </nav>
 <div class="foot-bottom">© 2026 fonoboflow.com</div>
 </footer>
