@@ -1,60 +1,47 @@
 # Subset fonts — READ BEFORE EDITING COPY
 
 These six files are **not complete fonts**. They contain only the characters listed
-in `CHARSET.txt` (102 of them). Any character outside that set will render in a
-fallback system font, **silently** — no error, no console warning, just one word in
+in `CHARSET.txt` (122 of them). Any character outside that set will render in a
+fallback system font, **silently**: no error, no console warning, just one word in
 the wrong typeface that is easy to miss.
 
-Total: 50.2 KB for all six faces, down from 94.8 KB unsubset.
+Total: about 49 KB for all six faces.
 
-## ⚠️ Adding the Polish version REQUIRES regenerating these files
+## Polish is included (30 Sep 2026)
 
-Polish needs nine characters that are **not in the current subset**:
-
-```
-ą ć ę ł ń ó ś ź ż    and their capitals    Ą Ć Ę Ł Ń Ó Ś Ź Ż
-```
-
-Ship the Polish copy against these files and every one of those letters falls back
-to a system font. On a page whose entire identity is two typefaces, that is
-immediately visible — `gubi czas, pieniądze, cel?` would render with a broken
-`ą`.
-
-**Regenerate both languages in one pass when the Polish copy is final.**
+The charset now carries the Polish letters `ą ć ę ł ń ó ś ź ż` and their capitals,
+plus `·` (the language switcher) and `„` (Polish opening quote). The same six files
+serve both `index.html` and `pl/index.html`. Adding a character to either page's
+copy means adding it to `CHARSET.txt` and regenerating all six files.
 
 ## How these were generated
 
-Google Fonts' `text=` parameter returns a subset containing only the requested
-characters. For each face:
+Offline, with fontTools (`pyftsubset` / `fontTools.subset`), from the upstream
+font files kept in the `fonobo-flow-brand` repo under `fonts/`:
 
-```
-https://fonts.googleapis.com/css2?family=<Family>:<axis>&text=<URL-encoded charset>
-```
-
-then download the `.woff2` the returned CSS points at. The six requests used:
-
-| file | family | axis |
+| file | source | notes |
 |---|---|---|
-| poppins-latin-500 | Poppins | `ital,wght@0,500` |
-| poppins-latin-600 | Poppins | `ital,wght@0,600` |
-| poppins-latin-700 | Poppins | `ital,wght@0,700` |
-| poppins-latin-italic-500 | Poppins | `ital,wght@1,500` |
-| inter-latin-400 | Inter | `wght@400` |
-| inter-latin-700 | Inter | `wght@700` |
+| poppins-latin-500 | Poppins-Medium.ttf | all layout features |
+| poppins-latin-600 | Poppins-SemiBold.ttf | all layout features |
+| poppins-latin-700 | Poppins-Bold.ttf | all layout features |
+| poppins-latin-italic-500 | Poppins-MediumItalic.ttf | all layout features |
+| inter-latin-400 | Inter-VariableFont_opsz,wght.ttf | instanced at opsz 14, wght 400; `kern`, `calt` only |
+| inter-latin-700 | Inter-VariableFont_opsz,wght.ttf | instanced at opsz 14, wght 700; `kern`, `calt` only |
 
-To add Polish, append the eighteen characters above to `CHARSET.txt`, re-run all
-six requests with the new charset, and replace all six files. Keep the filenames —
-`index.html` references them directly.
+Output flavour woff2. Keep the filenames: both pages reference them directly.
+Advance widths were compared glyph by glyph with the previous (Google Fonts)
+subsets: identical for all Poppins faces and Inter 400; Inter 700 differs on two
+glyphs (`2` and `"`), by the upstream version difference only.
 
-`pyftsubset` (fonttools) does the same job offline if you prefer not to depend on
-Google's endpoint.
+The first subsets (14 Aug 2026) came from Google Fonts' `text=` endpoint. Either
+method works; the offline one does not depend on Google's endpoint.
 
 ## Why the charset is wider than what the page renders
 
-The page currently renders 65 distinct glyphs. The subset carries 102. The extra
-37 are ordinary punctuation and the rest of the alphabet, deliberately included so
-routine copy edits cannot silently break typography. Trimming to exactly 65 would
-save a further ~20 KB and make every future word a risk. Not worth it.
+The pages render fewer glyphs than the subset carries. The extra ones are ordinary
+punctuation and the rest of the alphabet, deliberately included so
+routine copy edits cannot silently break typography. Trimming to exactly what renders
+would save a few KB and make every future word a risk. Not worth it.
 
 **A subtle trap that already caught one attempt at this:** `text-transform:
 uppercase` renders glyphs that never appear in the HTML source. Four elements use
