@@ -35,7 +35,7 @@
 @font-face{font-family:'Poppins';font-style:italic;font-weight:500;font-display:swap;src:url(assets/fonts/poppins-latin-italic-500.woff2) format('woff2')}
 @font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url(assets/fonts/inter-latin-400.woff2) format('woff2')}
 @font-face{font-family:'Inter';font-style:normal;font-weight:700;font-display:swap;src:url(assets/fonts/inter-latin-700.woff2) format('woff2')}
-:root{color-scheme:only light;--ink:#000;--paper:#fff;--gray-800:#222;--gray-500:#777;--gray-450:#8f8f8f;--gray-on-paper:#767676;--gray-300:#b4b4b4;--gray-250:#bdbdbd;--gray-200:#d0d0d0;--on-invert-line:rgba(255,255,255,.38);--font-display:'Poppins',system-ui,sans-serif;--font-body:'Inter',system-ui,sans-serif;--maxw:1080px;--gutter:28px;--bar-height:78px;--radius-sm:6px;--radius-md:10px;--ease:ease;--dur-fast:.15s;--dur-base:.18s}
+:root{color-scheme:light dark;--ink:#000;--paper:#fff;--gray-800:#222;--gray-500:#777;--gray-450:#8f8f8f;--gray-on-paper:#767676;--gray-300:#b4b4b4;--gray-250:#bdbdbd;--gray-200:#d0d0d0;--on-invert-line:rgba(255,255,255,.38);--font-display:'Poppins',system-ui,sans-serif;--font-body:'Inter',system-ui,sans-serif;--maxw:1080px;--gutter:28px;--bar-height:78px;--radius-sm:6px;--radius-md:10px;--ease:ease;--dur-fast:.15s;--dur-base:.18s}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;scroll-padding-top:calc(var(--bar-height) + 12px)}
 body{font-family:var(--font-body);color:var(--ink);background:var(--paper);line-height:1.6;-webkit-font-smoothing:antialiased}
@@ -51,6 +51,8 @@ a:hover{color:inherit}
 .bar.on{visibility:visible}
 .bar-inner{display:flex;align-items:center;justify-content:flex-end;height:var(--bar-height)}
 .bar-nav{display:flex;gap:30px}
+.nav-toggle{display:none;align-items:center;justify-content:center;width:44px;height:44px;margin-right:-10px;padding:0;background:none;border:0;color:var(--paper);cursor:pointer}
+.nav-toggle svg{width:24px;height:24px;display:block}
 .bar-nav a{position:relative;font-family:var(--font-display);font-weight:500;font-size:14px;color:var(--gray-250);transition:color var(--dur-fast) var(--ease)}
 .bar-nav a::after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:center;transition:transform var(--dur-base) var(--ease)}
 .bar-nav a:hover,.bar-nav a.active{color:var(--paper)}
@@ -116,8 +118,11 @@ footer .foot-line{font-family:var(--font-display);font-weight:600;font-size:clam
 .about-grid{grid-template-columns:1fr;gap:28px}
 .about-photo{max-width:230px}
 .bar-inner{padding-left:118px;height:auto;min-height:var(--bar-height);padding-top:8px;padding-bottom:8px}
-.bar-nav{gap:clamp(10px,3.4vw,15px);flex-wrap:wrap;justify-content:flex-end;row-gap:2px}
-.bar-nav a{font-size:13px;white-space:nowrap}
+.nav-toggle{display:flex}
+.bar-nav{position:absolute;left:0;right:0;top:100%;display:none;flex-direction:column;gap:0;background:var(--ink);border-top:1px solid #1c1c1c;border-bottom:1px solid rgba(255,255,255,.14)}
+.bar.nav-open .bar-nav{display:flex}
+.bar-nav a{font-size:16px;padding:15px var(--gutter);white-space:nowrap}
+.bar-nav a::after{display:none}
 .how{padding:64px 0}
 .how-item{grid-template-columns:1fr;gap:16px;padding:30px 0}
 .how-label{display:flex;align-items:baseline;gap:14px}
@@ -127,7 +132,18 @@ footer .foot-line{font-family:var(--font-display);font-weight:600;font-size:clam
 .foot-contact{border-left:none;border-top:1px solid var(--gray-800);padding:16px 0;align-items:center;text-align:center}
 .foot-contact:first-child{border-top:none}
 }
-@media (max-width:400px){.bar-nav{gap:12px}.bar-nav a{font-size:12.5px}}
+@media (prefers-color-scheme:dark){
+/* The hero, bar and footer are already black and stay black. Only the two light
+   bands invert, lifted to #121212 so the page keeps its alternating rhythm. */
+body{background:#121212;color:#f0f0f0}
+.how{background:#121212}
+.about-lead,.about-close,.about-text .em,.how-eyebrow,.how-verb,.how-sketch,.how-body b{color:#f5f5f5}
+.about-text,.how-num{color:#9b9b9b}
+.how-body{color:#c8c8c8}
+.how-item{border-top-color:#2a2a2a}
+.how-item:first-child{border-top-color:#f5f5f5}
+.about-photo{box-shadow:0 18px 50px -22px rgba(0,0,0,.8)}
+}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.hero-scroll{animation:none}.swap-real{transition:none}}
 </style>
 </head>
@@ -136,7 +152,8 @@ footer .foot-line{font-family:var(--font-display);font-weight:600;font-size:clam
 <div class="scroll-progress" aria-hidden="true"><span id="progressFill"></span></div>
 <header class="bar" id="bar">
 <div class="wrap bar-inner">
-<nav class="bar-nav" aria-label="Primary">
+<button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="barNav"><span class="sr">Menu</span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6.5h18M3 12h18M3 17.5h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+<nav class="bar-nav" id="barNav" aria-label="Primary">
 <a href="#about">about</a>
 <a href="#how">how we work</a>
 <a href="#contact">let's talk</a>
@@ -273,6 +290,19 @@ addEventListener('resize',function(){
 measure();frame();
 // Fonts change the hero's height, so the logo's anchor must be re-measured once they land.
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){measure();frame();});
+
+// Menu (mobile only — the button is display:none above 820px, so it is not focusable there).
+(function(){
+  var tgl=document.getElementById('navToggle'),nv=document.getElementById('barNav');
+  if(!tgl||!nv)return;
+  function open(){return bar.classList.contains('nav-open');}
+  function set(o){bar.classList.toggle('nav-open',o);tgl.setAttribute('aria-expanded',o?'true':'false');}
+  tgl.addEventListener('click',function(e){e.stopPropagation();set(!open());});
+  nv.addEventListener('click',function(e){if(e.target.closest('a'))set(false);});
+  document.addEventListener('click',function(e){if(open()&&!bar.contains(e.target))set(false);});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&open()){set(false);tgl.focus();}});
+  addEventListener('resize',function(){if(open()&&document.documentElement.clientWidth>820)set(false);});
+})();
 
 document.getElementById('heroScroll').addEventListener('click',function(){
   window.scrollTo({top:about.getBoundingClientRect().top+window.scrollY-90,behavior:reduce?'auto':'smooth'});
