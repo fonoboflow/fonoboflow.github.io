@@ -44,6 +44,19 @@ assets/fonts/       subset woff2 files. Read assets/fonts/README.md before any c
 5. **Both pages change together.** A layout or CSS change made in `index.html` is
    made in `pl/index.html` in the same commit.
 
+## Analytics
+
+GoatCounter (cookieless, no consent banner). Dashboard: https://fonoboflow.goatcounter.com
+
+- `assets/count.js` is GoatCounter's tracker, self-hosted so the page loads no
+  third-party script. Copied byte for byte from tag v2.7.0
+  (`public/count.js`, sha256 `030ad75a...cbe9`). It does not auto-update; the
+  `/count` endpoint stays backwards compatible.
+- Both pages load it in one line just before `</body>`. Only the count request
+  leaves the site.
+- Own visits: open the site once per browser with `#toggle-goatcounter`.
+- GA4 was considered and rejected on 4 Oct 2026 (cookies, needs a consent banner).
+
 ## Known, accepted tradeoffs
 
 - The hero word swap cycles indefinitely, which fails WCAG 2.2.2 by choice; it
@@ -59,6 +72,7 @@ assets/fonts/       subset woff2 files. Read assets/fonts/README.md before any c
 - 30 Sep 2026: those edits carried over; this repo becomes the single source;
   English copy updated to brandbook release 2026-09-30b; Polish page added;
   fonts regenerated with Polish letters.
+- 4 Oct 2026: GoatCounter analytics added (self-hosted count.js).
 
 ## Regenerating og.png
 
